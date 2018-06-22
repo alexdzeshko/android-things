@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.google.android.things.contrib.driver.bmx280.Bmx280SensorDriver;
+import com.google.android.things.contrib.driver.rainbowhat.RainbowHat;
 
 import java.io.IOException;
 
@@ -18,7 +19,6 @@ import java.io.IOException;
 public class TemperaturePressureService extends Service {
 
     private static final String TAG = TemperaturePressureService.class.getSimpleName();
-    private static final String I2C_BUS = BoardDefaults.getI2cBus();
 
     private Bmx280SensorDriver mTemperatureSensorDriver;
 
@@ -29,7 +29,7 @@ public class TemperaturePressureService extends Service {
 
     private void setupTemperaturePressureSensor() {
         try {
-            mTemperatureSensorDriver = new Bmx280SensorDriver(I2C_BUS);
+            mTemperatureSensorDriver = RainbowHat.createSensorDriver();
             mTemperatureSensorDriver.registerTemperatureSensor();
             mTemperatureSensorDriver.registerPressureSensor();
         } catch (IOException e) {

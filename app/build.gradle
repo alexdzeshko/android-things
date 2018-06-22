@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 27
@@ -21,20 +21,19 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:support-v4:27.1.1'
 
     compileOnly 'com.google.android.things:androidthings:1.0'
 
-    implementation 'com.google.android.things.contrib:driver-cap12xx:1.0'
     implementation 'com.google.android.things.contrib:driver-button:1.0'
     implementation 'com.google.android.things.contrib:driver-tm1637:1.0'
     implementation 'com.google.android.things.contrib:driver-ht16k33:1.0'
-    implementation 'com.google.android.things.contrib:driver-ssd1306:0.3'
     implementation 'com.google.android.things.contrib:driver-apa102:1.0'
     implementation 'com.google.android.things.contrib:driver-bmx280:1.0'
     implementation 'com.google.android.things.contrib:driver-pwmspeaker:1.0'
     implementation 'com.google.android.things.contrib:driver-pwmservo:1.0'
+    implementation 'com.google.android.things.contrib:driver-rainbowhat:1.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
