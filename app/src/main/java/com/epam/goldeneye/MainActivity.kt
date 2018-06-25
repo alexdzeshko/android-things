@@ -5,33 +5,36 @@ import android.app.Service
 import android.content.Intent
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.util.Log
+import android.os.Handler
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
+import com.epam.goldeneye.bluetooth.BluetoothConnector
+import com.epam.goldeneye.bluetooth.IBluetoothConnector
 import com.epam.goldeneye.rainbowhat.Beeper
+import com.epam.goldeneye.rainbowhat.IRainbowConnector
 import com.epam.goldeneye.rainbowhat.RainbowConnector
+import com.epam.goldeneye.rainbowhat.RainbowConnector.RainbowButton.*
+import com.epam.goldeneye.texttospeach.ComputerVoice
+import com.epam.goldeneye.texttospeach.IComputerVoice
 
 class MainActivity : Activity(), RainbowConnector.ServiceManager {
 
-    override fun <S : Service> startService(service: Class<S>) {
-        startService(Intent(this, service))
-    }
-
-    override fun <S : Service> stopService(service: Class<S>) {
-        stopService(Intent(this, service))
-    }
-
-    private val rainbowConnector: RainbowConnector = RainbowConnector({
+    private val handler = Handler()
+    private lateinit var voice: IComputerVoice
+    private lateinit var bluetoothConnector: IBluetoothConnector
+    private val rainbowConnector: IRainbowConnector = RainbowConnector({
         sensorManager
     }, this)
 
     private var displayMode = DisplayMode.TEMPERATURE
+
     private val sensorManager by lazy {
         getSystemService(SensorManager::class.java)
     }
 
     private enum class DisplayMode {
+
         TEMPERATURE,
         PRESSURE
     }
@@ -39,6 +42,9 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
+
+        voice = ComputerVoice(this)
+        bluetoothConnector = BluetoothConnector(this)
 
         rainbowConnector.initialize()
         rainbowConnector.temperatureListener = { temp ->
@@ -54,9 +60,46 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
             }
         }
 
-        playIntro()
+        rainbowConnector.onButtonPressed = {rainbowButton ->
+            when (rainbowButton) {
+                A -> {
+                    displayMode = DisplayMode.TEMPERATURE
+                    rainbowConnector.updateDisplay(rainbowConnector.getRecentTemperature())
+                    rainbowConnector.switchLed(A,true)
+                    rainbowConnector.switchLed(B, false)
+                }
+                B -> {
+                    displayMode = DisplayMode.PRESSURE
+                    rainbowConnector.updateDisplay(rainbowConnector.getRecentPressure())
+                    rainbowConnector.switchLed(A,false)
+                    rainbowConnector.switchLed(B,true)
+                }
+                C -> {
+                    //do bluetooth connect
+                    bluetoothConnector.enableDiscoverable()
+                    rainbowConnector.switchLed(C, true)
+                    delayed(500) { rainbowConnector.switchLed(C, false)}
+                }
+            }
+
+        }
+//        playIntro()
+
+        voice.say("Hello, my master!")
 
         findViewById<View>(R.id.btn).setOnClickListener { Toast.makeText(this@MainActivity, "Hello!", Toast.LENGTH_SHORT).show() }
+    }
+
+    private fun delayed(timeout: Long, block: () -> Unit) {
+        handler.postDelayed({block.invoke()}, timeout)
+    }
+
+    override fun <S : Service> startService(service: Class<S>) {
+        startService(Intent(this, service))
+    }
+
+    override fun <S : Service> stopService(service: Class<S>) {
+        stopService(Intent(this, service))
     }
 
     private fun playIntro() {
@@ -70,8 +113,8 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
     override fun onDestroy() {
         super.onDestroy()
         rainbowConnector.shutdown()
+        voice.shutdown()
     }
-
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         playButtonClick()
@@ -79,22 +122,7 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        Log.d(TAG, "onKeyUp() called with: keyCode = [$keyCode], event = [$event]")
-        if (keyCode == KeyEvent.KEYCODE_A) {
-            displayMode = DisplayMode.TEMPERATURE
-            rainbowConnector.updateDisplay(rainbowConnector.getRecentTemperature())
-            rainbowConnector.switchLedA(true)
-            rainbowConnector.switchLedB(false)
-            return true
-        }
-        if (keyCode == KeyEvent.KEYCODE_B) {
-            displayMode = DisplayMode.PRESSURE
-            rainbowConnector.updateDisplay(rainbowConnector.getRecentPressure())
-            rainbowConnector.switchLedA(false)
-            rainbowConnector.switchLedB(true)
-            return true
-        }
-        return super.onKeyUp(keyCode, event)
+        return rainbowConnector.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event)
     }
 
     companion object {

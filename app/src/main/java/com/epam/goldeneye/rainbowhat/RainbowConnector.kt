@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
 import android.view.KeyEvent
+import com.epam.goldeneye.rainbowhat.RainbowConnector.RainbowButton.*
 import com.epam.goldeneye.utils.IO
 import com.epam.goldeneye.utils.closePlease
 import com.google.android.things.contrib.driver.apa102.Apa102
@@ -21,24 +22,50 @@ import java.io.IOException
 interface IRainbowConnector {
     var temperatureListener: ((Float) -> Unit)?
     var pressureListener: ((Float) -> Unit)?
+    var onButtonPressed: ((RainbowConnector.RainbowButton) -> Unit)?
     fun getRecentTemperature(): Float
     fun getRecentPressure(): Float
     fun initialize()
     fun beep(tone: DoubleArray)
     fun updateDisplay(value: Float)
-    fun switchLedA(isOn: Boolean)
-    fun switchLedB(isOn: Boolean)
+    fun switchLed(led: RainbowConnector.RainbowButton, isOn: Boolean)
     fun lightLedPressure(pPressure: Float)
     fun shutdown()
+    fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean
 }
 
 class RainbowConnector(private val sensorManagerProvider: () -> SensorManager,
                        private val serviceManager: ServiceManager)
     : IRainbowConnector {
 
+    enum class RainbowButton {
+        A, B, C
+    }
+
+    override var onButtonPressed: ((RainbowButton) -> Unit)? = null
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        Log.d(TAG, "onKeyUp() called with: keyCode = [$keyCode], event = [$event]")
+        return when (keyCode) {
+            KeyEvent.KEYCODE_A -> {
+                onButtonPressed?.invoke(A)
+                true
+            }
+            KeyEvent.KEYCODE_B -> {
+                onButtonPressed?.invoke(B)
+                true
+            }
+            KeyEvent.KEYCODE_C -> {
+                onButtonPressed?.invoke(C)
+                true
+            }
+            else -> false
+        }
+    }
+
     interface ServiceManager {
-        fun <S : Service>startService(service: Class<S>)
-        fun <S : Service>stopService(service: Class<S>)
+        fun <S : Service> startService(service: Class<S>)
+        fun <S : Service> stopService(service: Class<S>)
     }
 
     private var segmentDisplay: AlphanumericDisplay? = null
@@ -51,8 +78,10 @@ class RainbowConnector(private val sensorManagerProvider: () -> SensorManager,
 
     private var ledA: Gpio? = null
     private var ledB: Gpio? = null
+    private var ledC: Gpio? = null
     private var buttonAInputDriver: ButtonInputDriver? = null
     private var buttonBInputDriver: ButtonInputDriver? = null
+    private var buttonCInputDriver: ButtonInputDriver? = null
 
     //    private Handler mHandler = new Handler();
 
@@ -128,6 +157,9 @@ class RainbowConnector(private val sensorManagerProvider: () -> SensorManager,
 
             buttonBInputDriver = RainbowHat.createButtonBInputDriver(KeyEvent.KEYCODE_B)
             buttonBInputDriver?.register()
+
+            buttonCInputDriver = RainbowHat.createButtonCInputDriver(KeyEvent.KEYCODE_C)
+            buttonCInputDriver?.register()
         } catch (e: IOException) {
             throw RuntimeException("Error initializing GPIO button", e)
         }
@@ -139,8 +171,10 @@ class RainbowConnector(private val sensorManagerProvider: () -> SensorManager,
         try {
             ledA = RainbowHat.openLedRed()
             ledB = RainbowHat.openLedGreen()
+            ledC = RainbowHat.openLedBlue()
             switchLed(ledA, true)
             switchLed(ledB, false)
+            switchLed(ledC, false)
         } catch (e: IOException) {
             throw RuntimeException("Error initializing led", e)
         }
@@ -210,12 +244,12 @@ class RainbowConnector(private val sensorManagerProvider: () -> SensorManager,
 
     }
 
-    override fun switchLedA(isOn: Boolean) {
-        switchLed(ledA, isOn)
-    }
-
-    override fun switchLedB(isOn: Boolean) {
-        switchLed(ledB, isOn)
+    override fun switchLed(led: RainbowButton, isOn: Boolean) {
+        when (led) {
+            A -> switchLed(ledA, isOn)
+            B -> switchLed(ledB, isOn)
+            C -> switchLed(ledC, isOn)
+        }
     }
 
     override fun lightLedPressure(pPressure: Float) {
@@ -224,7 +258,7 @@ class RainbowConnector(private val sensorManagerProvider: () -> SensorManager,
         val delta = Math.min(MAX_PRESSURE.toFloat(), Math.max(0f, pPressure - MIN_PRESSURE)).toInt() / 10
         val index = Math.min(NUM_LEDS - 1, Math.max(0, NUM_LEDS - 1 - delta))
 
-        Log.d(TAG, "signalPressure: i $index d $delta")
+//        Log.d(TAG, "signalPressure: i $index d $delta")
         showRainbowLight(index, Color.BLUE)
     }
 
@@ -271,7 +305,7 @@ class RainbowConnector(private val sensorManagerProvider: () -> SensorManager,
         override fun onSensorChanged(event: SensorEvent) {
             val currentTemperature = event.values[0]
             if (Math.abs(recentTemperature - currentTemperature) > 0.05f) {
-                Log.i(TAG, "temperature changed: $currentTemperature")
+//                Log.i(TAG, "temperature changed: $currentTemperature")
                 temperatureListener?.invoke(currentTemperature)
             }
             recentTemperature = currentTemperature
@@ -289,7 +323,7 @@ class RainbowConnector(private val sensorManagerProvider: () -> SensorManager,
         override fun onSensorChanged(event: SensorEvent) {
             val currentPressure = event.values[0]
             if (Math.abs(recentPressure - currentPressure) > 0.1f) {
-                Log.d(TAG, "pressure changed: $recentPressure")
+//                Log.d(TAG, "pressure changed: $recentPressure")
                 pressureListener?.invoke(currentPressure)
             }
             recentPressure = currentPressure
