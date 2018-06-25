@@ -1,4 +1,4 @@
-package com.epam.goldeneye
+package com.epam.goldeneye.utils
 
 import android.util.Log
 import java.io.IOException
@@ -23,4 +23,9 @@ object IO {
             Log.e("IO", ex.message)
         }
     }
+
+}
+
+fun AutoCloseable.closePlease() {
+    IO.closePlease(this)
 }

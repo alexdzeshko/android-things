@@ -9,7 +9,7 @@
     <application>
         <uses-library android:name="com.google.android.things"/>
 
-        <service android:name=".TemperaturePressureService">
+        <service android:name=".rainbowhat.TemperaturePressureService">
         </service>
 
         <activity android:name=".MainActivity">

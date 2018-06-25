@@ -1,10 +1,10 @@
-package com.epam.goldeneye
+package com.epam.goldeneye.rainbowhat
 
 import android.os.Handler
 import android.os.HandlerThread
 import com.google.android.things.contrib.driver.pwmspeaker.Speaker
 
-class Beeper(val speaker: Speaker?) {
+class Beeper(private val speaker: Speaker?) {
 
     companion object {
         private const val PLAYBACK_NOTE_DELAY = 80L
@@ -19,6 +19,9 @@ class Beeper(val speaker: Speaker?) {
     }
 
     fun beep(tone: DoubleArray, noteDelay: Long = PLAYBACK_NOTE_DELAY) {
+        handler.removeCallbacksAndMessages(null)
+        speaker?.stop()
+
         handler.post(PlaybackRunnable(tone, noteDelay))
     }
 

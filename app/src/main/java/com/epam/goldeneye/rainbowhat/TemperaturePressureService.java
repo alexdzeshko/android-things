@@ -1,4 +1,4 @@
-package com.epam.goldeneye;
+package com.epam.goldeneye.rainbowhat;
 
 import android.app.Service;
 import android.content.Intent;
