@@ -9,7 +9,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.hardware.SensorManager.DynamicSensorCallback;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -38,11 +37,12 @@ public class MainActivity extends Activity {
     int[] mLedColors = new int[NUM_LEDS];
 
     private Speaker mSpeaker;
+    private Beeper mBeeper;
 
     private Gpio mLedA, mLedB;
     private ButtonInputDriver mButtonAInputDriver, mButtonBInputDriver;
 
-    private Handler mHandler = new Handler();
+//    private Handler mHandler = new Handler();
 
     private SensorManager mSensorManager;
     private TemperatureEventListener mTemperatureListener = new TemperatureEventListener();
@@ -62,6 +62,8 @@ public class MainActivity extends Activity {
     };
 
     private DisplayMode mDisplayMode = DisplayMode.TEMPERATURE;
+    public static final int MAX_PRESSURE = 1030;
+    public static final int MIN_PRESSURE = 970;
 
     private enum DisplayMode {
         TEMPERATURE,
@@ -79,7 +81,7 @@ public class MainActivity extends Activity {
         showAllRainbowLights();
         startTemperaturePressureRequest();
         setupSpeaker();
-//        playSound();
+        playIntro();
 
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,18 +89,16 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this, "Hello!", Toast.LENGTH_SHORT).show();
             }
         });
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                finishAffinity();
-            }
-        }, 1000);
     }
 
-    private void playSound() {
-        try {
-            mSpeaker.play(/* G4 */ 391.995);
+    private void playIntro() {
+        mBeeper.beep(Beeper.Tones.INSTANCE.getDRAMATIC_THEME(), 80L);
+    }
+
+    private void playButtonClick() {
+        mBeeper.beep(new double[]{Beeper.Tones.G4}, 80L);
+        /*try {
+            mSpeaker.play(*//* G4 *//* 391.995);
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
             }, SOUND_LENGTH);
         } catch (IOException e) {
             Log.e(TAG, "Error playing note", e);
-        }
+        }*/
     }
 
     private void showAllRainbowLights() {
@@ -178,7 +178,7 @@ public class MainActivity extends Activity {
             mSegmentDisplay.setBrightness(SEGMENT_DISPLAY_BRIGHTNESS);
             mSegmentDisplay.setEnabled(true);
             mSegmentDisplay.clear();
-            mSegmentDisplay.display("KURT");
+            mSegmentDisplay.display("Welcome");
         } catch (IOException e) {
             Log.e(TAG, "Error configuring display", e);
         }
@@ -206,6 +206,7 @@ public class MainActivity extends Activity {
         try {
             mSpeaker = RainbowHat.openPiezo();
             mSpeaker.stop(); // in case the PWM pin was enabled already
+            mBeeper = new Beeper(mSpeaker);
         } catch (IOException e) {
             Log.e(TAG, "Error initializing speaker");
         }
@@ -226,52 +227,29 @@ public class MainActivity extends Activity {
     }
 
     private void destroyAlphanumericDisplay() {
-        if (mSegmentDisplay != null) {
-            Log.i(TAG, "Closing display");
-            try {
-                mSegmentDisplay.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing display", e);
-            } finally {
-                mSegmentDisplay = null;
-            }
-        }
+        IO.closePlease(mSegmentDisplay);
     }
 
     private void destroyLedStrip() {
-        if (mLedstrip != null) {
-            try {
-                mLedstrip.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Exception closing LED strip", e);
-            } finally {
-                mLedstrip = null;
-            }
-        }
+        IO.closePlease(mLedstrip);
+    }
+
+    private void destroySpeaker() {
+        IO.closePlease(mSpeaker);
     }
 
     private void stopTemperaturePressureRequest() {
         stopService(new Intent(this, TemperaturePressureService.class));
-        mSensorManager.unregisterDynamicSensorCallback(mDynamicSensorCallback);
-        mSensorManager.unregisterListener(mTemperatureListener);
-    }
-
-    private void destroySpeaker() {
-        if (mSpeaker != null) {
-            try {
-                mSpeaker.stop();
-                mSpeaker.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing speaker", e);
-            } finally {
-                mSpeaker = null;
-            }
+        if (mSensorManager != null) {
+            mSensorManager.unregisterDynamicSensorCallback(mDynamicSensorCallback);
+            mSensorManager.unregisterListener(mTemperatureListener);
+            mSensorManager.unregisterListener(mPressureListener);
         }
     }
 
     @Override
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-        playSound();
+        playButtonClick();
         return super.onKeyDown(keyCode, event);
     }
 
@@ -351,10 +329,7 @@ public class MainActivity extends Activity {
     private void signalPressure(final float pPressure) {
         resetRainbow();
 
-        int max = 1030;
-        int min = 970;
-
-        final int delta = (int) Math.min(max, Math.max(0, pPressure - min))/10;
+        final int delta = (int) Math.min(MAX_PRESSURE, Math.max(0, pPressure - MIN_PRESSURE)) / 10;
         final int index = Math.min(NUM_LEDS - 1, Math.max(0, NUM_LEDS - 1 - delta));
 
         Log.d(TAG, "signalPressure: i " + index + " d " + delta);
