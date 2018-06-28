@@ -8,9 +8,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.KeyEvent
 import android.view.View
-import android.widget.Toast
 import com.epam.goldeneye.bluetooth.BluetoothConnector
 import com.epam.goldeneye.bluetooth.IBluetoothConnector
+import com.epam.goldeneye.facerecognition.FaceRecognitionActivity
 import com.epam.goldeneye.rainbowhat.Beeper
 import com.epam.goldeneye.rainbowhat.IRainbowConnector
 import com.epam.goldeneye.rainbowhat.RainbowConnector
@@ -34,9 +34,8 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
     }
 
     private enum class DisplayMode {
-
         TEMPERATURE,
-        PRESSURE
+        PRESSURE;
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +46,8 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
         bluetoothConnector = BluetoothConnector(this)
 
         rainbowConnector.initialize()
+        rainbowConnector.switchLed(A,displayMode == DisplayMode.TEMPERATURE)
+        rainbowConnector.switchLed(B, false)
         rainbowConnector.temperatureListener = { temp ->
             if (displayMode == DisplayMode.TEMPERATURE) {
                 rainbowConnector.updateDisplay(temp)
@@ -63,16 +64,13 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
         rainbowConnector.onButtonPressed = {rainbowButton ->
             when (rainbowButton) {
                 A -> {
-                    displayMode = DisplayMode.TEMPERATURE
-                    rainbowConnector.updateDisplay(rainbowConnector.getRecentTemperature())
-                    rainbowConnector.switchLed(A,true)
-                    rainbowConnector.switchLed(B, false)
+                    displayMode = if (displayMode == DisplayMode.TEMPERATURE) DisplayMode.PRESSURE else DisplayMode.TEMPERATURE
+                    rainbowConnector.updateDisplay(if(displayMode == DisplayMode.TEMPERATURE) rainbowConnector.getRecentTemperature() else rainbowConnector.getRecentPressure())
+                    rainbowConnector.switchLed(A,displayMode == DisplayMode.TEMPERATURE)
                 }
                 B -> {
-                    displayMode = DisplayMode.PRESSURE
-                    rainbowConnector.updateDisplay(rainbowConnector.getRecentPressure())
-                    rainbowConnector.switchLed(A,false)
-                    rainbowConnector.switchLed(B,true)
+                    rainbowConnector.switchLed(B, true)
+                    startFaceRecognition()
                 }
                 C -> {
                     //do bluetooth connect
@@ -87,7 +85,11 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
 
         voice.say("Hello, my master!")
 
-        findViewById<View>(R.id.btn).setOnClickListener { Toast.makeText(this@MainActivity, "Hello!", Toast.LENGTH_SHORT).show() }
+        findViewById<View>(R.id.btn).setOnClickListener { startFaceRecognition() }
+    }
+
+    private fun startFaceRecognition() {
+        startActivity(Intent(this, FaceRecognitionActivity::class.java))
     }
 
     private fun delayed(timeout: Long, block: () -> Unit) {
@@ -127,6 +129,5 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
-        // LED configuration.
     }
 }

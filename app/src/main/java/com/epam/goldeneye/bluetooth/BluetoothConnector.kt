@@ -78,19 +78,19 @@ class BluetoothConnector(private var context: Context?) : IBluetoothConnector {
      * @return
      */
     fun disconnect(profile: BluetoothProfile, device: BluetoothDevice): Boolean {
-        try {
+        return try {
             val m = profile.javaClass.getMethod("disconnect", BluetoothDevice::class.java)
             m.invoke(profile, device)
-            return true
+            true
         } catch (e: NoSuchMethodException) {
             Log.w(TAG, "No disconnect method in the ${profile.javaClass.name} class, ignoring request.")
-            return false
+            false
         } catch (e: InvocationTargetException) {
             Log.w(TAG, "Could not execute method 'disconnect' in profile ${profile.javaClass.name}, ignoring request.", e)
-            return false
+            false
         } catch (e: IllegalAccessException) {
             Log.w(TAG, "Could not execute method 'disconnect' in profile ${profile.javaClass.name}, ignoring request.", e)
-            return false
+            false
         }
 
     }
@@ -143,8 +143,7 @@ class BluetoothConnector(private var context: Context?) : IBluetoothConnector {
                 val oldState = getPreviousProfileState(intent)
                 val newState = getCurrentProfileState(intent)
                 val device = getDevice(intent)
-                Log.d(TAG, "Bluetooth A2DP sink changing playback state from " + oldState +
-                        " to " + newState + " device " + device)
+                Log.d(TAG, "Bluetooth A2DP sink changing playback state from $oldState to $newState device $device")
                 device?.let {
                     when (newState) {
                         STATE_PLAYING -> Log.i(TAG, "Playing audio from device " + device.address)
