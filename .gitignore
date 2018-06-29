@@ -9,3 +9,6 @@
 /build
 /captures
 .externalNativeBuild
+opencv-sdk/build
+.idea
+.idea

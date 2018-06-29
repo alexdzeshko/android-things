@@ -1,9 +1,12 @@
 package com.epam.goldeneye.facerecognition
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceView
+import android.view.View
+import com.epam.goldeneye.MainActivity
 import com.epam.goldeneye.R
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
@@ -32,6 +35,10 @@ class FaceRecognitionActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.face_recognition_activity)
+
+        findViewById<View>(R.id.btnBack).setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
 
         cameraView = findViewById(R.id.cameraView)
 

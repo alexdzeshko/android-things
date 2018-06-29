@@ -1,0 +1,1 @@
+https://github.com/leadrien/opencv_native_androidstudio

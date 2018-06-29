@@ -97,8 +97,8 @@ android {
     //buildToolsVersion "27.0.3" // not needed since com.android.tools.build:gradle:3.0.0
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 21
+        minSdkVersion 19
+        targetSdkVersion 27
     }
 
     buildTypes {
@@ -121,7 +121,10 @@ android {
             manifest.srcFile 'java/AndroidManifest.xml'
         }
     }
+
+
 }
+
 
 dependencies {
 }
