@@ -10,6 +10,7 @@ import android.view.KeyEvent
 import android.view.View
 import com.epam.goldeneye.bluetooth.BluetoothConnector
 import com.epam.goldeneye.bluetooth.IBluetoothConnector
+import com.epam.goldeneye.facerecognition.FaceDetectionActivity
 import com.epam.goldeneye.facerecognition.FaceRecognitionActivity
 import com.epam.goldeneye.rainbowhat.Beeper
 import com.epam.goldeneye.rainbowhat.IRainbowConnector
@@ -85,11 +86,15 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
 
         voice.say("Hello, my master!")
 
-        findViewById<View>(R.id.btn).setOnClickListener { startFaceRecognition() }
+        findViewById<View>(R.id.btn).setOnClickListener { startFaceDetection() }
     }
 
     private fun startFaceRecognition() {
         startActivity(Intent(this, FaceRecognitionActivity::class.java))
+    }
+
+    private fun startFaceDetection() {
+        startActivity(Intent(this, FaceDetectionActivity::class.java))
     }
 
     private fun delayed(timeout: Long, block: () -> Unit) {
