@@ -1,16 +1,15 @@
-package com.epam.goldeneye.facerecognition
+package com.epam.opencv.detector.face.ui
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import com.epam.goldeneye.MainActivity
-import com.epam.goldeneye.R
+import com.epam.opencv.R
+import com.epam.opencv.detector.face.DetectionBasedTracker
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
 import org.opencv.android.LoaderCallbackInterface
@@ -60,7 +59,7 @@ class FaceDetectionActivity : Activity(), CameraBridgeViewBase.CvCameraViewListe
                     Log.i(TAG, "OpenCV loaded successfully")
 
                     // Load native library after(!) OpenCV initialization
-                    System.loadLibrary("DetectionBasedTracker_jni")
+                    System.loadLibrary("opencv-detector")
 
                     try {
                         // load cascade file from application resources
@@ -110,7 +109,7 @@ class FaceDetectionActivity : Activity(), CameraBridgeViewBase.CvCameraViewListe
         mOpenCvCameraView?.setCvCameraViewListener(this)
 
         findViewById<View>(R.id.btnBack).setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+//            startActivity(Intent(this, MainActivity::class.java))
         }
     }
 

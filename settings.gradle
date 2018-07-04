@@ -1,2 +1,5 @@
 include ':app'
 include ':opencv-sdk'
+include ':opencv-detector'
+//include ':dlib-android:androidstudio-examples:dlib-android-app:app'
+//include ':dlib-android:androidstudio-examples:dlib-android-app:dlib'

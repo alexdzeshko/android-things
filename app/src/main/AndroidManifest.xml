@@ -35,8 +35,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".facerecognition.FaceRecognitionActivity"/>
-        <activity android:name=".facerecognition.FaceDetectionActivity"/>
+        <activity android:name="com.epam.opencv.detector.face.ui.FaceDetectionActivity"/>
     </application>
 
 </manifest>

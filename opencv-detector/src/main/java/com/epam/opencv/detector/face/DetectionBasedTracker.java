@@ -1,4 +1,4 @@
-package com.epam.goldeneye.facerecognition;
+package com.epam.opencv.detector.face;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;

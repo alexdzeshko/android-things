@@ -1,3 +1,4 @@
+/*
 package com.epam.goldeneye.facerecognition
 
 import android.app.Activity
@@ -82,4 +83,4 @@ class FaceRecognitionActivity : Activity() {
         super.onDestroy()
         cameraView.disableView()
     }
-}
+}*/
