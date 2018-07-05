@@ -7,16 +7,27 @@
     <uses-permission android:name="com.google.android.things.permission.MANAGE_BLUETOOTH"/>
     <uses-permission android:name="com.google.android.things.permission.MANAGE_SENSOR_DRIVERS"/>
     <uses-permission android:name="com.google.android.things.permission.MANAGE_INPUT_DRIVERS"/>
-    <uses-permission android:name="com.google.android.things.permission.USE_PERIPHERAL_IO" />
+    <uses-permission android:name="com.google.android.things.permission.USE_PERIPHERAL_IO"/>
 
     <uses-permission android:name="android.permission.CAMERA"/>
 
-    <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera.front.autofocus"
+        android:required="false"/>
 
-    <application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application
+        android:hardwareAccelerated="true">
         <uses-library android:name="com.google.android.things"/>
 
         <service android:name=".rainbowhat.TemperaturePressureService">
@@ -36,6 +47,14 @@
             </intent-filter>
         </activity>
         <activity android:name="com.epam.opencv.detector.face.ui.FaceDetectionActivity"/>
+        <activity
+            android:name="com.tzutalin.dlibtest.DlibMainActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true"/>
+        <activity
+            android:name="com.tzutalin.dlibtest.CameraActivity"
+            android:configChanges="orientation|screenSize"/>
     </application>
 
 </manifest>

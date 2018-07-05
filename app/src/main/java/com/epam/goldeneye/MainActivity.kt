@@ -17,6 +17,7 @@ import com.epam.goldeneye.rainbowhat.RainbowConnector.RainbowButton.*
 import com.epam.goldeneye.texttospeach.ComputerVoice
 import com.epam.goldeneye.texttospeach.IComputerVoice
 import com.epam.opencv.detector.face.ui.FaceDetectionActivity
+import com.tzutalin.dlibtest.DlibMainActivity
 
 class MainActivity : Activity(), RainbowConnector.ServiceManager {
 
@@ -86,6 +87,8 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
         voice.say("Hello, my master!")
 
         findViewById<View>(R.id.btn).setOnClickListener { startFaceDetection() }
+        findViewById<View>(R.id.btnDlib).setOnClickListener { startActivity(Intent(this, DlibMainActivity::class.java)) }
+
     }
 
     private fun startFaceDetection() {
