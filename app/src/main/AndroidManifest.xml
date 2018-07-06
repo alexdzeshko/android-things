@@ -55,6 +55,10 @@
         <activity
             android:name="com.tzutalin.dlibtest.CameraActivity"
             android:configChanges="orientation|screenSize"/>
+        <activity android:name="com.example.android.camera2basic.CameraActivity"
+                  android:theme="@style/AppTheme.NoActionBar"
+                  android:exported="true"/>
+        <activity android:name=".facerecognition.FaceRecognitionActivity"/>
     </application>
 
 </manifest>

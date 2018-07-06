@@ -20,7 +20,6 @@ public class FaceDet {
     // accessed by native methods
     @SuppressWarnings("unused")
     private long mNativeFaceDetContext;
-    private String mLandMarkPath = "";
 
     static {
         try {
@@ -32,14 +31,8 @@ public class FaceDet {
         }
     }
 
-    @SuppressWarnings("unused")
-    public FaceDet() {
-        jniInit(mLandMarkPath);
-    }
-
     public FaceDet(String landMarkPath) {
-        mLandMarkPath = landMarkPath;
-        jniInit(mLandMarkPath);
+        jniInit(landMarkPath);
     }
 
     @Nullable

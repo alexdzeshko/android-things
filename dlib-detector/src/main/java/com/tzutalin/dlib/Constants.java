@@ -8,6 +8,9 @@ import java.io.File;
  * Created by darrenl on 2016/4/22.
  */
 public final class Constants {
+
+    public static final String SHAPE_PREDICTOR_68_FACE_LANDMARKS_DAT = "shape_predictor_68_face_landmarks.dat";
+
     private Constants() {
         // Constants should be prive
     }
@@ -18,7 +21,8 @@ public final class Constants {
      */
     public static String getFaceShapeModelPath() {
         File sdcard = Environment.getExternalStorageDirectory();
-        String targetPath = sdcard.getAbsolutePath() + File.separator + "shape_predictor_68_face_landmarks.dat";
+        String targetPath = sdcard.getAbsolutePath() + File.separator + "shape_predictor_5_face_landmarks.dat";
+
         return targetPath;
     }
 }

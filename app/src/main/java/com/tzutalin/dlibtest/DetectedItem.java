@@ -10,4 +10,12 @@ public class DetectedItem {
         title = pTitle;
         image = pImage;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Drawable getImage() {
+        return image;
+    }
 }
