@@ -21,8 +21,7 @@ public final class Constants {
      */
     public static String getFaceShapeModelPath() {
         File sdcard = Environment.getExternalStorageDirectory();
-        String targetPath = sdcard.getAbsolutePath() + File.separator + "shape_predictor_5_face_landmarks.dat";
 
-        return targetPath;
+        return sdcard.getAbsolutePath() + File.separator + "shape_predictor_5_face_landmarks.dat";
     }
 }

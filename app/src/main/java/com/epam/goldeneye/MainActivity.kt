@@ -6,10 +6,12 @@ import android.content.Intent
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import com.epam.goldeneye.bluetooth.BluetoothConnector
 import com.epam.goldeneye.bluetooth.IBluetoothConnector
+import com.epam.goldeneye.facerecognition.RecognitionService
 import com.epam.goldeneye.rainbowhat.Beeper
 import com.epam.goldeneye.rainbowhat.IRainbowConnector
 import com.epam.goldeneye.rainbowhat.RainbowConnector
@@ -18,6 +20,9 @@ import com.epam.goldeneye.texttospeach.ComputerVoice
 import com.epam.goldeneye.texttospeach.IComputerVoice
 import com.epam.opencv.detector.face.ui.FaceDetectionActivity
 import com.tzutalin.dlibtest.DlibMainActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : Activity(), RainbowConnector.ServiceManager {
 
@@ -71,7 +76,8 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
                 }
                 B -> {
                     rainbowConnector.switchLed(B, true)
-                    startFaceDetection()
+//                    startFaceDetection()
+                    pingRecognitionService()
                 }
                 C -> {
                     //do bluetooth connect
@@ -89,6 +95,21 @@ class MainActivity : Activity(), RainbowConnector.ServiceManager {
         findViewById<View>(R.id.btn).setOnClickListener { startFaceDetection() }
         findViewById<View>(R.id.btnDlib).setOnClickListener { startActivity(Intent(this, DlibMainActivity::class.java)) }
 
+        pingRecognitionService()
+
+    }
+
+    private fun pingRecognitionService() {
+        RecognitionService.api.ping().enqueue(object : Callback<RecognitionService.PingDto> {
+            override fun onResponse(call: Call<RecognitionService.PingDto>?, response: Response<RecognitionService.PingDto>?) {
+                Log.d("TAG", response?.body()?.data)
+            }
+
+            override fun onFailure(call: Call<RecognitionService.PingDto>?, t: Throwable?) {
+                Log.e("TAG", call?.request()?.method(), t)
+            }
+
+        })
     }
 
     private fun startFaceDetection() {
