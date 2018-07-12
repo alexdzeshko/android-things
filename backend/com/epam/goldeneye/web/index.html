@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Face recognition</title>
+    <style>
+        img {
+            background-position: center center;
+            background-repeat: no-repeat;
+            }
+
+    </style>
 </head>
 <body>
 <p>
@@ -13,5 +20,19 @@
     <br/>
     <input type="submit" value="upload"/>
 </form>
+
+<div>
+    <h2>Known faces</h2>
+    <br>
+    {% for path in known_faces %}
+    <img src={{ path }} width="200px" height="200px"/>
+    {% end %}
+    <br>
+    <h2>Recent uploads</h2>
+    <br>
+    {% for path in recent_uploads %}
+    <img src={{ path }} width="200px" height="200px"/>
+    {% end %}
+</div>
 </body>
 </html>

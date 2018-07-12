@@ -1,9 +1,9 @@
+import HTMLParser
 import os.path
+from os import walk
 import random
 import string
 import json
-
-import recognition.RecognotionResult
 
 import tornado.ioloop
 import tornado.web
@@ -24,7 +24,7 @@ class PingHandler(tornado.web.RequestHandler):
 
     def get(self):
         print "ping from {}".format(self.get_user_locale())
-        self.write("{\"data\":\"Hello, world\"}")
+        self.write(json.dumps({"data": "Hello, world"}))
 
 
 class RecognizeHandler(tornado.web.RequestHandler):
@@ -52,12 +52,51 @@ class RecognizeHandler(tornado.web.RequestHandler):
         return output_file
 
 
+def generate_imgs(img_dir):
+    img_tags = []
+    for (_, _, filenames) in walk(img_dir):
+        print(filenames)
+        for filename in filenames:
+            img_tags.append("/images/{}/{}".format(img_dir, filename))
+        break
+    print(img_tags)
+    return img_tags
+
+
 class IndexHandler(tornado.web.RequestHandler):
     def data_received(self, chunk):
         pass
 
     def get(self):
-        self.render("../web/index.html")
+        known_faces_imgs = generate_imgs("data/known_faces")
+        recent_uploads_imgs = generate_imgs("data/uploads")
+
+        self.render("../web/index.html", known_faces=known_faces_imgs, recent_uploads=recent_uploads_imgs)
+
+
+class ImageHandler(tornado.web.RequestHandler):
+    def data_received(self, chunk):
+        pass
+
+    def get(self, url):
+        print("give me image {}".format(self.request.path))
+        try:
+            path = self.get_image_path()
+            print("giving from {}".format(path))
+            with open(path, 'rb') as f:
+                data = f.read()
+            self.write(data)
+        except Exception as e:
+            print('error {}'.format(e))
+        finally:
+            self.finish()
+
+    def get_image_path(self):
+        path_split = self.request.path.split('/')
+        if not path_split[len(path_split)-1]:
+            path_split = path_split[0:-1]
+        path = "data/{}/{}".format(path_split[len(path_split)-2], path_split[len(path_split)-1])
+        return path
 
 
 def scan_known_people(known_people_folder):
@@ -103,7 +142,8 @@ def test_image(image_to_check, tolerance=0.6):
         print_result(image_to_check, "no_persons_found", None)
 
     else:
-        for unknown_encoding, face_landmarks, face_location in zip(unknown_encodings, face_landmarks_list, face_locations):
+        for unknown_encoding, face_landmarks, face_location in zip(unknown_encodings, face_landmarks_list,
+                                                                   face_locations):
             distances = face_recognition.face_distance(known_face_encodings, unknown_encoding)
 
             for distance, name in zip(distances, known_names):
@@ -127,8 +167,9 @@ def test_image(image_to_check, tolerance=0.6):
 
             # Print the location of each face in this image
             top, right, bottom, left = face_location
-            print("A face is located at pixel location Top: {}, Left: {}, Bottom: {}, Right: {}".format(top, left, bottom,
-                                                                                                        right))
+            print(
+                "A face is located at pixel location Top: {}, Left: {}, Bottom: {}, Right: {}".format(top, left, bottom,
+                                                                                                      right))
             d.rectangle(((left, top), (right, bottom)), outline=4)
             font = ImageFont.truetype("font/arial.ttf", size=30)
             title = item['name']
@@ -157,7 +198,7 @@ def make_app():
         (r"/", IndexHandler),
         (r"/ping", PingHandler),
         (r"/recognize", RecognizeHandler),
-        (r"/recognition_result/(.*)", tornado.web.StaticFileHandler, {'path': "data/recognition_results"})
+        (r"/images/(.*)", ImageHandler),
     ])
 
 
