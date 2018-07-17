@@ -73,7 +73,7 @@ class FaceRecognitionActivity : Activity() {
         val targetPath = Constants.getFaceShapeModelPath()
         if (!File(targetPath).exists()) {
             Log.d(FaceRecognitionActivity::class.java.simpleName, "prepareModel from $targetPath")
-            FileUtils.copyFileFromRawToOthers(applicationContext, R.raw.shape_predictor_68_face_landmarks, targetPath)
+            FileUtils.copyFileFromRawToOthers(applicationContext, R.raw.shape_predictor_5_face_landmarks, targetPath)
         }
     }
 

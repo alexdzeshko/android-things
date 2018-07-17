@@ -225,7 +225,7 @@ public class OnGetImageListener implements OnImageAvailableListener {
 
                         if (!new File(Constants.getFaceShapeModelPath()).exists()) {
                             mTransparentTitleView.setText("Copying landmark model to " + Constants.getFaceShapeModelPath());
-                            FileUtils.copyFileFromRawToOthers(mContext, R.raw.shape_predictor_68_face_landmarks, Constants.getFaceShapeModelPath());
+                            FileUtils.INSTANCE.copyFileFromRawToOthers(mContext, R.raw.shape_predictor_68_face_landmarks, Constants.getFaceShapeModelPath());
                         }
 
                         long startTime = System.currentTimeMillis();

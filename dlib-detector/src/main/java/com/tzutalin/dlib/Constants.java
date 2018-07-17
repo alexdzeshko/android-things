@@ -9,10 +9,10 @@ import java.io.File;
  */
 public final class Constants {
 
-    public static final String SHAPE_PREDICTOR_68_FACE_LANDMARKS_DAT = "shape_predictor_68_face_landmarks.dat";
+//    public static final String SHAPE_PREDICTOR_68_FACE_LANDMARKS_DAT = "shape_predictor_68_face_landmarks.dat";
 
     private Constants() {
-        // Constants should be prive
+        // Constants should be private
     }
 
     /**
@@ -22,6 +22,6 @@ public final class Constants {
     public static String getFaceShapeModelPath() {
         File sdcard = Environment.getExternalStorageDirectory();
 
-        return sdcard.getAbsolutePath() + File.separator + "shape_predictor_5_face_landmarks.dat";
+        return sdcard.getAbsolutePath() + File.separator + "shape_predictor_face_landmarks.dat";
     }
 }

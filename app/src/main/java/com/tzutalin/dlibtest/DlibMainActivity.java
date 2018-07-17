@@ -242,7 +242,7 @@ public class DlibMainActivity extends AppCompatActivity {
                     Toast.makeText(DlibMainActivity.this, "Copy landmark model to " + targetPath, Toast.LENGTH_SHORT).show();
                 }
             });
-            FileUtils.copyFileFromRawToOthers(getApplicationContext(), R.raw.shape_predictor_68_face_landmarks, targetPath);
+            FileUtils.INSTANCE.copyFileFromRawToOthers(getApplicationContext(), R.raw.shape_predictor_68_face_landmarks, targetPath);
         }
         // Init
         if (mPersonDet == null) {
