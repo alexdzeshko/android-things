@@ -245,12 +245,12 @@ public class Camera2BasicFragment extends Fragment
      * This a callback object for the {@link ImageReader}. "onImageAvailable" will be called when a
      * still image is ready to be saved.
      */
-    private final ImageReader.OnImageAvailableListener mOnImageAvailableListener
-            = new ImageReader.OnImageAvailableListener() {
+    private final ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
 
         @Override
         public void onImageAvailable(ImageReader reader) {
             mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+            updateLastCapturedPreview();
         }
 
     };
@@ -533,8 +533,7 @@ public class Camera2BasicFragment extends Fragment
                         new CompareSizesByArea());
                 mImageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(),
                         ImageFormat.JPEG, /*maxImages*/2);
-                mImageReader.setOnImageAvailableListener(
-                        mOnImageAvailableListener, mBackgroundHandler);
+                mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
 
                 // Find out if we need to swap dimension to get the preview size relative to sensor
                 // coordinate.
@@ -843,21 +842,15 @@ public class Camera2BasicFragment extends Fragment
             int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, getOrientation(rotation));
 
-            CameraCaptureSession.CaptureCallback captureCallback
-                    = new CameraCaptureSession.CaptureCallback() {
+            CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback() {
 
                 @Override
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
-                                               @NonNull TotalCaptureResult result) {
+                                               @NonNull final TotalCaptureResult result) {
                     Log.d(TAG, mFile.toString());
                     showToast("Saved: " + mFile);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mLastCapturedImageView.setImageURI(Uri.fromFile(mFile));
-                        }
-                    });
+                    updateLastCapturedPreview();
                     unlockFocus();
                 }
             };
@@ -868,6 +861,16 @@ public class Camera2BasicFragment extends Fragment
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    private void updateLastCapturedPreview() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLastCapturedImageView.setImageDrawable(null);
+                mLastCapturedImageView.setImageURI(Uri.fromFile(mFile));
+            }
+        });
     }
 
     /**
